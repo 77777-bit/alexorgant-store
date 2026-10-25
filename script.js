@@ -1,6 +1,4 @@
 // Alexorgant Cosmetics - starter storefront
-// Replace the demo products and WhatsApp number below before launch.
-const WHATSAPP_NUMBER = ""; // ضع رقم واتساب المتجر بصيغة 2010xxxxxxxx بدون + أو مسافات
 const SUPABASE_URL = "https://nzckjiqygjxaguxvgzwo.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4azFT8K7YjPnGG8s5LIzBw_pPWzAdZj";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -54,17 +52,10 @@ function renderCart(){
 }
 function openCart(){$("#cartDrawer").classList.add("open");$("#cartBackdrop").classList.add("show");$("#cartDrawer").setAttribute("aria-hidden","false")}
 function closeCart(){$("#cartDrawer").classList.remove("open");$("#cartBackdrop").classList.remove("show");$("#cartDrawer").setAttribute("aria-hidden","true")}
-function orderText(details=null){
-  const lines=cart.map(i=>{const p=products.find(p=>String(p.id)===String(i.id));return `- ${p.name} × ${i.qty} = ${money(p.price*i.qty)}`});
-  let s="طلب جديد من Alexorgant Cosmetics\n\n"+lines.join("\n")+"\n\nالإجمالي: "+money(total());
-  if(details)s+="\n\nالاسم: "+details.name+"\nالموبايل: "+details.phone+"\nالعنوان: "+details.address+(details.notes?"\nملاحظات: "+details.notes:"");
-  return s;
-}
 $("#themeToggle").addEventListener("click",()=>{document.body.classList.toggle("dark");const dark=document.body.classList.contains("dark");localStorage.setItem("alexorgant-theme",dark?"dark":"light");$("#themeToggle").textContent=dark?"☀":"☾"});
 if(localStorage.getItem("alexorgant-theme")==="dark"){document.body.classList.add("dark");$("#themeToggle").textContent="☀"}
 $("#cartOpen").addEventListener("click",openCart);$("#cartClose").addEventListener("click",closeCart);$("#cartBackdrop").addEventListener("click",closeCart);
 $("#searchInput").addEventListener("input",e=>renderProducts(e.target.value));
-$("#whatsappOrder").addEventListener("click",()=>{if(!cart.length)return showToast("ضيفي منتج للسلة الأول");if(!WHATSAPP_NUMBER)return showToast("أضيفي رقم واتساب المتجر في ملف script.js أولًا");window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(orderText())}`,"_blank","noopener")});
 $("#checkoutOpen").addEventListener("click",()=>{if(!cart.length)return showToast("ضيفي منتج للسلة الأول");$("#checkoutDialog").showModal()});
 $("#checkoutClose").addEventListener("click",()=>$("#checkoutDialog").close());
 $("#deliveryZone").addEventListener("change",updateCheckoutEstimate);
