@@ -70,5 +70,58 @@ $("#checkoutClose").addEventListener("click",()=>$("#checkoutDialog").close());
 $("#deliveryZone").addEventListener("change",updateCheckoutEstimate);
 $("#checkoutForm").addEventListener("submit",async e=>{e.preventDefault();if(!cart.length)return showToast("السلة فاضية");const d=Object.fromEntries(new FormData(e.currentTarget).entries());if(!d.delivery_zone)return showToast("اختاري منطقة التوصيل");const submit=e.currentTarget.querySelector('[type="submit"]');submit.disabled=true;submit.textContent="جاري حفظ الطلب...";try{const items=cart.map(i=>({product_id:i.id,quantity:i.qty}));const {data,error}=await supabaseClient.rpc("create_store_order",{p_customer_name:d.name,p_phone:d.phone,p_address:d.address,p_notes:d.notes||"",p_items:items,p_delivery_zone:d.delivery_zone,p_discount_code:d.discount_code.trim()||null});if(error)throw error;const order=Array.isArray(data)?data[0]:data;if(!order||!order.order_id)throw new Error("لم يرجع النظام رقم الطلب");cart=[];renderCart();$("#checkoutDialog").close();closeCart();showToast(`تم حفظ طلبك بنجاح. رقم الطلب: ${order.order_number} — الإجمالي ${money(Number(order.total))}`);e.currentTarget.reset();updateCheckoutEstimate();}catch(err){console.error("Order save failed:",err);showToast(err.message||"تعذر حفظ الطلب. حاول مرة أخرى");}finally{submit.disabled=false;submit.textContent="تأكيد الطلب — الدفع عند الاستلام"}});
 
+
+// Anonymous customer support chat. Messages are validated by Supabase RPCs.
+const CHAT_TOKEN_KEY = "alexorgant-chat-token";
+const CHAT_ID_KEY = "alexorgant-chat-id";
+let chatConversationId = localStorage.getItem(CHAT_ID_KEY) || "";
+let chatToken = localStorage.getItem(CHAT_TOKEN_KEY) || "";
+let chatPoll = null;
+const chatStatus = (msg) => { const el = $("#chatStatus"); if (el) el.textContent = msg || ""; };
+function setChatActive(active) {
+  $("#chatIdentity").hidden = active;
+  $("#chatMessages").hidden = !active;
+  $("#chatSendForm").hidden = !active;
+}
+function safeChatText(value) { return String(value ?? "").replace(/[&<>\"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+async function startChat() {
+  const name = $("#chatName").value.trim();
+  const phone = $("#chatPhone").value.trim();
+  if (!name) return chatStatus("اكتبي اسمك الأول.");
+  const token = chatToken || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  chatStatus("جاري فتح المحادثة...");
+  const {data,error} = await supabaseClient.rpc("customer_chat_open", {p_customer_name:name,p_phone:phone||null,p_token:token});
+  if (error) { console.error(error); return chatStatus("تعذر فتح الشات. تأكدي إن ملف SQL الخاص بالشات اتنفّذ في Supabase."); }
+  const result = Array.isArray(data) ? data[0] : data;
+  chatConversationId = result?.conversation_id || result?.id || result?.conversation_id;
+  if (!chatConversationId) return chatStatus("تعذر بدء المحادثة، جرّبي مرة تانية.");
+  chatToken = token; localStorage.setItem(CHAT_TOKEN_KEY,token); localStorage.setItem(CHAT_ID_KEY,chatConversationId);
+  setChatActive(true); chatStatus("المحادثة جاهزة."); await loadChatMessages();
+  if (chatPoll) clearInterval(chatPoll); chatPoll = setInterval(loadChatMessages,5000);
+}
+async function loadChatMessages() {
+  if (!chatConversationId || !chatToken) return;
+  const {data,error}=await supabaseClient.rpc("customer_chat_messages",{p_conversation_id:chatConversationId,p_token:chatToken});
+  if(error){console.error(error);chatStatus("حصلت مشكلة في تحديث الرسائل.");return;}
+  const list=Array.isArray(data)?data:(data?.messages||[]);
+  $("#chatMessages").innerHTML=list.map(m=>`<div class="chat-bubble ${m.sender_role==='admin'?'admin':'customer'}"><p>${safeChatText(m.message)}</p><time>${new Date(m.created_at).toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'})}</time></div>`).join("") || '<p class="chat-empty">أهلًا بيكي 🌿 اكتبي رسالتك وهنساعدك.</p>';
+  $("#chatMessages").scrollTop=$("#chatMessages").scrollHeight;
+  chatStatus("");
+}
+async function sendChatMessage(event) {
+  event.preventDefault(); const input=$("#chatMessageInput"); const message=input.value.trim();
+  if(!message || !chatConversationId || !chatToken)return;
+  const button=$("#chatSendForm button");button.disabled=true;
+  const {error}=await supabaseClient.rpc("customer_chat_send",{p_conversation_id:chatConversationId,p_token:chatToken,p_message:message});
+  button.disabled=false;
+  if(error){console.error(error);chatStatus("الرسالة ما اتبعتتش. حاولي تاني.");return;}
+  input.value="";await loadChatMessages();
+}
+$("#chatToggle").addEventListener("click",()=>{const panel=$("#chatPanel");const open=panel.hidden;panel.hidden=!open;$("#chatToggle").setAttribute("aria-expanded",String(open));if(open&&chatConversationId&&chatToken){setChatActive(true);loadChatMessages();if(chatPoll)clearInterval(chatPoll);chatPoll=setInterval(loadChatMessages,5000);}});
+$("#chatClose").addEventListener("click",()=>{$("#chatPanel").hidden=true;$("#chatToggle").setAttribute("aria-expanded","false");if(chatPoll){clearInterval(chatPoll);chatPoll=null;}});
+$("#chatStart").addEventListener("click",startChat);
+$("#chatSendForm").addEventListener("submit",sendChatMessage);
+if(chatConversationId && chatToken){setChatActive(true);}
+
 $("#year").textContent=new Date().getFullYear();
 loadProducts();loadDeliveryZones();renderCart();

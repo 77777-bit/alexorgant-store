@@ -85,6 +85,16 @@
     <div id="checkoutResult" hidden></div>
   </dialog>
 
+  <section id="chatWidget" class="chat-widget" aria-label="الدعم المباشر">
+    <button id="chatToggle" class="chat-toggle" aria-expanded="false" aria-controls="chatPanel">💬 <span>اسألي Alexorgant</span></button>
+    <div id="chatPanel" class="chat-panel" hidden>
+      <div class="chat-title"><div><strong>خدمة العملاء</strong><small>ابعتيلنا رسالتك وهنرد عليكي</small></div><button id="chatClose" aria-label="إغلاق الشات">×</button></div>
+      <div id="chatIdentity" class="chat-identity"><label>اسمك<input id="chatName" maxlength="80" placeholder="اسمك"></label><label>رقم الموبايل (اختياري)<input id="chatPhone" maxlength="25" inputmode="tel" placeholder="01xxxxxxxxx"></label><button id="chatStart" class="primary-btn full">ابدئي المحادثة</button></div>
+      <div id="chatMessages" class="chat-messages" aria-live="polite" hidden></div>
+      <form id="chatSendForm" class="chat-send" hidden><input id="chatMessageInput" maxlength="1500" placeholder="اكتبي رسالتك..." aria-label="رسالتك" required><button type="submit" aria-label="إرسال الرسالة">إرسال</button></form>
+      <p id="chatStatus" class="chat-status" role="status"></p>
+    </div>
+  </section>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
