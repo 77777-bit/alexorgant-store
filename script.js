@@ -68,8 +68,46 @@ $("#whatsappOrder").addEventListener("click",()=>{if(!cart.length)return showToa
 $("#checkoutOpen").addEventListener("click",()=>{if(!cart.length)return showToast("ضيفي منتج للسلة الأول");$("#checkoutDialog").showModal()});
 $("#checkoutClose").addEventListener("click",()=>$("#checkoutDialog").close());
 $("#deliveryZone").addEventListener("change",updateCheckoutEstimate);
-$("#checkoutForm").addEventListener("submit",async e=>{e.preventDefault();if(!cart.length)return showToast("السلة فاضية");const d=Object.fromEntries(new FormData(e.currentTarget).entries());if(!d.delivery_zone)return showToast("اختاري منطقة التوصيل");const submit=e.currentTarget.querySelector('[type="submit"]');submit.disabled=true;submit.textContent="جاري حفظ الطلب...";try{const items=cart.map(i=>({product_id:i.id,quantity:i.qty}));const {data,error}=await supabaseClient.rpc("create_store_order",{p_customer_name:d.name,p_phone:d.phone,p_address:d.address,p_notes:d.notes||"",p_items:items,p_delivery_zone:d.delivery_zone,p_discount_code:d.discount_code.trim()||null});if(error)throw error;const order=Array.isArray(data)?data[0]:data;if(!order||!order.order_id)throw new Error("لم يرجع النظام رقم الطلب");cart=[];renderCart();$("#checkoutDialog").close();closeCart();showToast(`تم حفظ طلبك بنجاح. رقم الطلب: ${order.order_number} — الإجمالي ${money(Number(order.total))}`);e.currentTarget.reset();updateCheckoutEstimate();}catch(err){console.error("Order save failed:",err);showToast(err.message||"تعذر حفظ الطلب. حاول مرة أخرى");}finally{submit.disabled=false;submit.textContent="تأكيد الطلب — الدفع عند الاستلام"}});
+const paymentInstructions = $("#paymentInstructions");
+const paymentProof = $("#paymentProof");
+function selectedPaymentMethod(){return new FormData($("#checkoutForm")).get("payment_method")||"cod";}
+function updatePaymentControls(){
+ const method=selectedPaymentMethod();
+ paymentInstructions.hidden=method==="cod";
+ paymentProof.required=method!=="cod";
+ $("#checkoutSubmit").textContent=method==="cod"?"تأكيد الطلب — الدفع عند الاستلام":"تأكيد الطلب ورفع إثبات التحويل";
+}
+document.querySelectorAll('input[name="payment_method"]').forEach(r=>r.addEventListener("change",updatePaymentControls));
+updatePaymentControls();
 
+$("#checkoutForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!cart.length)return showToast("السلة فاضية");
+ const d=Object.fromEntries(new FormData(e.currentTarget).entries());
+ if(!d.delivery_zone)return showToast("اختاري منطقة التوصيل");
+ const method=d.payment_method||"cod";const proof=paymentProof.files?.[0]||null;
+ if(method!=="cod"&&!proof)return showToast("ارفعي صورة إثبات التحويل الأول");
+ if(proof&&(!["image/jpeg","image/png","image/webp"].includes(proof.type)||proof.size>5*1024*1024))return showToast("اختاري صورة JPG أو PNG أو WEBP أقل من 5 ميجابايت");
+ const submit=$("#checkoutSubmit");submit.disabled=true;submit.textContent="جاري حفظ الطلب...";
+ try{
+  const items=cart.map(i=>({product_id:i.id,quantity:i.qty}));
+  const {data,error}=await supabaseClient.rpc("create_store_order",{p_customer_name:d.name,p_phone:d.phone,p_address:d.address,p_notes:d.notes||"",p_items:items,p_delivery_zone:d.delivery_zone,p_discount_code:d.discount_code.trim()||null});
+  if(error)throw error;const order=Array.isArray(data)?data[0]:data;
+  if(!order||!order.order_id||!order.order_number)throw new Error("لم يرجع النظام رقم الطلب");
+  if(method!=="cod"){
+   submit.textContent="جاري رفع إيصال التحويل...";
+   const ext=proof.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+   const path=`${order.order_id}/${Date.now()}.${ext}`;
+   const {error:uploadError}=await supabaseClient.storage.from("payment-proofs").upload(path,proof,{contentType:proof.type,upsert:false});
+   if(uploadError)throw new Error("اتحفظ الطلب لكن رفع الإيصال فشل. تواصلي مع المتجر برقم الطلب "+order.order_number+". التفاصيل: "+uploadError.message);
+   const {error:proofError}=await supabaseClient.rpc("submit_payment_proof",{p_order_id:order.order_id,p_order_number:order.order_number,p_payment_method:method,p_proof_path:path});
+   if(proofError)throw new Error("اتحفظ الطلب وُرفع الإيصال لكن تسجيله فشل. احتفظي برقم الطلب "+order.order_number+" وتواصلي مع المتجر.");
+  }
+  cart=[];renderCart();$("#checkoutDialog").close();closeCart();
+  showToast(method==="cod"?`تم حفظ طلبك. رقم الطلب: ${order.order_number} — الإجمالي ${money(Number(order.total))}`:`تم استلام الطلب والإيصال. رقم الطلب: ${order.order_number}. الدفع في انتظار مراجعة المتجر.`);
+  e.currentTarget.reset();updatePaymentControls();updateCheckoutEstimate();
+ }catch(err){console.error("Order save failed:",err);showToast(err.message||"تعذر حفظ الطلب. حاول مرة أخرى");}
+ finally{submit.disabled=false;updatePaymentControls();}
+});
 
 // Anonymous customer support chat. Messages are validated by Supabase RPCs.
 const CHAT_TOKEN_KEY = "alexorgant-chat-token";

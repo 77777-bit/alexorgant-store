@@ -61,7 +61,7 @@
   <aside id="cartDrawer" class="cart-drawer" aria-label="سلة المشتريات" aria-hidden="true">
     <div class="drawer-head"><div><p class="eyebrow">YOUR BAG</p><h2>سلة المشتريات</h2></div><button id="cartClose" class="icon-btn" aria-label="إغلاق">×</button></div>
     <div id="cartItems" class="cart-items"></div>
-    <div class="cart-bottom"><div class="total-row"><span>الإجمالي التقريبي</span><strong id="cartTotal">0 ج.م</strong></div><button id="checkoutOpen" class="primary-btn full">إتمام الطلب من الموقع</button><button id="whatsappOrder" class="whatsapp-btn full">إرسال الطلب على واتساب</button><p class="fine-print">الدفع عند الاستلام. الطلبات تُحفظ في قاعدة بيانات المتجر.</p></div>
+    <div class="cart-bottom"><div class="total-row"><span>الإجمالي التقريبي</span><strong id="cartTotal">0 ج.م</strong></div><button id="checkoutOpen" class="primary-btn full">إتمام الطلب من الموقع</button><button id="whatsappOrder" class="whatsapp-btn full">إرسال الطلب على واتساب</button><p class="fine-print">اختاري طريقة الدفع المناسبة أثناء إتمام الطلب. الطلبات تُحفظ في قاعدة بيانات المتجر.</p></div>
   </aside>
 
   <dialog id="checkoutDialog" class="checkout-dialog">
@@ -73,14 +73,27 @@
       <label>ملاحظات (اختياري)<textarea name="notes" rows="2" placeholder="أي تفاصيل إضافية"></textarea></label>
       <label>المحافظة / منطقة التوصيل<select name="delivery_zone" id="deliveryZone" required><option value="">جاري تحميل المناطق...</option></select></label>
       <label>كود الخصم (اختياري)<input name="discount_code" id="discountCode" autocomplete="off" placeholder="اكتبي كود الخصم"></label>
+      <fieldset class="payment-options"><legend>طريقة الدفع</legend>
+        <label class="payment-choice"><input type="radio" name="payment_method" value="cod" checked> الدفع عند الاستلام</label>
+        <label class="payment-choice"><input type="radio" name="payment_method" value="wallet"> تحويل لمحفظة إلكترونية</label>
+        <label class="payment-choice"><input type="radio" name="payment_method" value="instapay"> InstaPay / تحويل للمحفظة</label>
+      </fieldset>
+      <div id="paymentInstructions" class="payment-instructions" hidden>
+        <strong>بيانات التحويل</strong>
+        <p>محفظة إلكترونية: <bdi dir="ltr">01098703879</bdi></p>
+        <p>المحفظة / InstaPay: <bdi dir="ltr">01505447626</bdi></p>
+        <p>حوّلي إجمالي الطلب الظاهر أعلاه، ثم ارفعي صورة واضحة لإيصال التحويل.</p>
+        <label>صورة إثبات التحويل <input type="file" id="paymentProof" accept="image/jpeg,image/png,image/webp" /></label>
+        <small>الحد الأقصى 5 ميجابايت. لن يتم اعتماد الدفع إلا بعد مراجعة المتجر.</small>
+      </div>
       <div class="checkout-summary">
         <div class="total-row"><span>قيمة المنتجات</span><strong id="checkoutSubtotal">0 ج.م</strong></div>
         <div class="total-row"><span>الخصم</span><strong id="checkoutDiscount">0 ج.م</strong></div>
         <div class="total-row"><span>التوصيل</span><strong id="checkoutDelivery">اختاري المنطقة</strong></div>
         <div class="total-row"><span>الإجمالي النهائي</span><strong id="checkoutTotal">0 ج.م</strong></div>
       </div>
-      <button class="primary-btn full" type="submit">تأكيد الطلب — الدفع عند الاستلام</button>
-      <p class="fine-print">التوصيل مجاني للطلبات التي تصل قيمتها بعد الخصم إلى 500 جنيه. يتم التحقق من السعر وكود الخصم عند تأكيد الطلب.</p>
+      <button class="primary-btn full" type="submit" id="checkoutSubmit">تأكيد الطلب</button>
+      <p class="fine-print">التوصيل مجاني للطلبات التي تصل قيمتها بعد الخصم إلى 500 جنيه. التحويلات اليدوية تظل معلّقة حتى مراجعة الإيصال.</p>
     </form>
     <div id="checkoutResult" hidden></div>
   </dialog>
