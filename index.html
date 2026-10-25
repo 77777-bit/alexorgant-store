@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#b8d6b0">
+  <title>Alexorgant Cosmetics | عنايتك اليومية</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="Alexorgant الصفحة الرئيسية">
+      <img src="logo.jpg" alt="Alexorgant Cosmetics logo" onerror="this.style.display='none'">
+      <span>alexorgant<small>COSMETICS</small></span>
+    </a>
+    <nav><a href="#products">المنتجات</a><a href="#about">عن المتجر</a><a href="#contact">تواصل معنا</a></nav>
+    <div class="header-actions">
+      <button id="themeToggle" class="icon-btn" aria-label="تغيير المظهر" title="الوضع الداكن/النهاري">☾</button>
+      <button id="cartOpen" class="cart-btn">السلة <span id="cartCount">0</span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">YOUR DAILY SELF-CARE RITUAL</p>
+        <h1>عناية تليق <span>بجمالك.</span></h1>
+        <p class="hero-text">اكتشفي اختياراتك للعناية بالبشرة والجسم، وخلي روتينك اليومي أبسط وأجمل.</p>
+        <a class="primary-btn" href="#products">تسوّقي المنتجات <span>←</span></a>
+        <div class="trust-line"><span>✦</span> اختيارات عناية يومية <span>•</span> تجربة تسوّق سهلة</div>
+      </div>
+      <div class="hero-art" aria-label="تصميم توضيحي لمنتجات العناية">
+        <div class="sun"></div><div class="leaf leaf-one"></div><div class="leaf leaf-two"></div>
+        <div class="product product-tall"><span>alexorgant</span><small>BODY LOTION</small></div>
+        <div class="product product-jar"><span>AO</span><small>SKIN CARE</small></div>
+        <div class="product product-short"><span>alexorgant</span><small>DAILY CARE</small></div>
+        <div class="art-caption">CARE • GLOW • FEEL GOOD</div>
+      </div>
+    </section>
+
+    <section class="category-strip" aria-label="تصنيفات">
+      <a href="#products" class="category"><span>✧</span><b>العناية بالبشرة</b><small>Skin care</small></a>
+      <a href="#products" class="category"><span>❋</span><b>العناية بالجسم</b><small>Body care</small></a>
+      <a href="#products" class="category"><span>♡</span><b>روتينك اليومي</b><small>Daily essentials</small></a>
+    </section>
+
+    <section id="products" class="products-section">
+      <div class="section-heading"><div><p class="eyebrow">THE SELF-CARE EDIT</p><h2>اختياراتنا ليكي</h2><p>دي منتجات تجريبية لتجربة شكل المتجر. استبدليها بمنتجاتك وأسعارك الحقيقية.</p></div>
+      <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="ابحثي عن منتج..." aria-label="ابحثي عن منتج"></label></div>
+      <div id="productGrid" class="product-grid"></div>
+    </section>
+
+    <section id="about" class="about-band"><div class="about-mark">AO</div><div><p class="eyebrow">A LITTLE CARE GOES A LONG WAY</p><h2>لحظات صغيرة، عناية أكبر.</h2><p>اختاري منتجاتك المفضلة واجمعيها في سلة واحدة. تقدري تكملي الطلب من الموقع أو تبعتيه مباشرة على واتساب.</p></div></section>
+    <section id="contact" class="contact-section"><p class="eyebrow">WE'RE HERE FOR YOU</p><h2>محتاجة مساعدة في اختيارك؟</h2><p>أضيفي رقم واتساب المتجر في ملف <code>script.js</code> عشان يستقبل الطلبات.</p></section>
+  </main>
+
+  <footer><a class="footer-brand" href="#">alexorgant</a><span>© <span id="year"></span> Alexorgant Cosmetics</span><a href="#products">تسوّقي الآن ↑</a></footer>
+
+  <div id="cartBackdrop" class="backdrop"></div>
+  <aside id="cartDrawer" class="cart-drawer" aria-label="سلة المشتريات" aria-hidden="true">
+    <div class="drawer-head"><div><p class="eyebrow">YOUR BAG</p><h2>سلة المشتريات</h2></div><button id="cartClose" class="icon-btn" aria-label="إغلاق">×</button></div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-bottom"><div class="total-row"><span>الإجمالي التقريبي</span><strong id="cartTotal">0 ج.م</strong></div><button id="checkoutOpen" class="primary-btn full">إتمام الطلب من الموقع</button><button id="whatsappOrder" class="whatsapp-btn full">إرسال الطلب على واتساب</button><p class="fine-print">نسخة تجريبية: الطلبات لن تُحفظ على خادم قبل ربط قاعدة بيانات.</p></div>
+  </aside>
+
+  <dialog id="checkoutDialog" class="checkout-dialog">
+    <form id="checkoutForm">
+      <div class="drawer-head"><div><p class="eyebrow">CHECKOUT</p><h2>بيانات الطلب</h2></div><button type="button" id="checkoutClose" class="icon-btn" aria-label="إغلاق">×</button></div>
+      <label>الاسم بالكامل<input name="name" required autocomplete="name" placeholder="اسمك"></label>
+      <label>رقم الموبايل<input name="phone" required inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx"></label>
+      <label>العنوان بالتفصيل<textarea name="address" required rows="3" placeholder="المحافظة، المنطقة، الشارع..."></textarea></label>
+      <label>ملاحظات (اختياري)<textarea name="notes" rows="2" placeholder="أي تفاصيل إضافية"></textarea></label>
+      <div class="total-row"><span>الإجمالي التقريبي</span><strong id="checkoutTotal">0 ج.م</strong></div>
+      <button class="primary-btn full" type="submit">تجهيز ملخص الطلب</button>
+      <p class="fine-print">لن يتم إرسال البيانات أو حفظها على الإنترنت في هذه النسخة التجريبية.</p>
+    </form>
+    <div id="checkoutResult" hidden></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
