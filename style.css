@@ -18,3 +18,4 @@
 .about-band{border-radius:3px}
 .primary-btn{border-radius:3px}
 @media(max-width:600px){.hero-art{border-radius:3px 60px 3px 3px}}
+.account-btn{border:1px solid var(--line);border-radius:30px;padding:9px 14px;background:var(--surface);color:var(--text);font-size:12px}.text-btn{display:block;width:100%;border:0;background:transparent;color:var(--green-deep);padding:10px;font-size:12px}.account-actions{margin-top:12px}.order-history{margin-top:15px;max-height:300px;overflow:auto}.history-item{display:grid;grid-template-columns:1fr auto;gap:5px;padding:12px 0;border-bottom:1px solid var(--line);font-size:12px}.history-item small{grid-column:1/-1;color:var(--muted)}.checkout-dialog button:disabled{opacity:.6;cursor:wait}@media(max-width:600px){.account-btn{padding:8px 10px;font-size:11px}.header-actions{gap:6px}}
